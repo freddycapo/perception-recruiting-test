@@ -1,4 +1,5 @@
 #include <opencv2/opencv.hpp>
+//#include <opencv2/core/core.hpp>
 #include <iostream>
 #include <vector>
 
@@ -25,6 +26,12 @@ int main() {
     cv::Scalar lower_orange(114, 0, 145);  // Limite inferiore (HSV)
     cv::Scalar upper_orange(180, 255, 255); // Limite superiore (HSV)
 
+    cv::Scalar lower_blue(40 , 70 , 70);
+    cv::Scalar upper_blue(125 , 255 , 255);
+
+    cv::Scalar lower_yellow(0 , 114 , 197);
+    cv::Scalar upper_yellow(60 , 255 , 255);
+
     cv::Mat mask;
     cv::inRange(hsv, lower_orange, upper_orange, mask);
     //cv::imwrite("../src/img/hsv_mask_frame.png", mask);
@@ -33,8 +40,10 @@ int main() {
     vector<cv::Vec4i> hierarchy;
     cv::findContours(mask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-    const float WH_RATEO_TRESHOLD = 0.66; // rapporto width / height ( 2 /3 )
+    const float WH_RATEO_TRESHOLD = 0.66; // rapporto width / height ( 2 / 3 )
     float wh_rateo;
+
+    
     
     for (const auto& contour : contours) {
         // Approssima la forma trovata
