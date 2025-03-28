@@ -10,6 +10,7 @@ private:
     _Color color;
 
 public:
+    cv::Rect getBox();
     Cone(cv::Rect box, cv::Scalar lower_color_bound, cv::Scalar upper_color_scalar);
     ~Cone();
 };

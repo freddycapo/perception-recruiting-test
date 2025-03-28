@@ -8,3 +8,7 @@ Cone::Cone(cv::Rect box, cv::Scalar lower_color_bound, cv::Scalar upper_color_sc
 Cone::~Cone()
 {
 }
+
+cv::Rect Cone::getBox(){
+    return this->box;
+}

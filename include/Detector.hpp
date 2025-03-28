@@ -1,17 +1,11 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include <vector>
-
+#include <iostream>
 #include "Cone.hpp"
 
 using namespace cv;
 
-class Detector{
-    private:
-        Mat frame;
-    public:
-        std::vector<Cone> get_cones_boxes(Scalar lower_bound , Scalar upper_bound);
-        Detector(Mat frame);
-        ~Detector();
-};
+std::vector<Cone> get_cones_boxes(Mat& Img , Scalar lower_bound, Scalar upper_bound, const float WH_TRESHOLD);
+
     
