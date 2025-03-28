@@ -6,6 +6,4 @@
 
 using namespace cv;
 
-std::vector<Cone> get_cones_boxes(Mat& Img , Scalar lower_bound, Scalar upper_bound, const float WH_TRESHOLD);
-
     

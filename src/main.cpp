@@ -35,7 +35,6 @@ std::vector<Cone> get_cones_boxes(Mat& Img  , Scalar lower_bound , Scalar upper_
     return ret_vec;
 }
 
-
 int main() {
     Mat image = imread("../src/img/frame_1.png");
     if (image.empty()) {
@@ -56,12 +55,32 @@ int main() {
     std::vector<Cone> blue_cones = get_cones_boxes(image,lower_blue , upper_blue, 2 , 30);
     std::vector<Cone> yellow_cones = get_cones_boxes(image,lower_yellow , upper_yellow, 2 , 30);
 
+    //ordinare i coni in base all'area (per via della prospettiva)
+
     std::vector<std::vector<Cone>> cones = {orange_cones , blue_cones , yellow_cones};
+
+    
 
     for (std::vector<Cone> row: cones){
         for (Cone cono : row){
             rectangle(image , cono.getBox() , Scalar(0,255,0) );
-        }   
+            std::cout <<"Area: " << cono.getBox().area()<< std::endl;
+        }
+    }
+
+    for(int i = 0; i < orange_cones.size(); i += 2){
+        line(image , 
+            Point(orange_cones[i].getBox().x + (orange_cones[i].getBox().width / 2) , orange_cones[i].getBox().y ),
+            Point(orange_cones[i+1].getBox().x + (orange_cones[i+1].getBox().width / 2) , orange_cones[i+1].getBox().y ),
+            Scalar(0,0,255),
+        3);
+    }
+
+    for(int i = 0; i < blue_cones.size(); ++i){
+        line(image , 
+            Point(blue_cones[i].getBox().x + (blue_cones[i].getBox().width / 2) , blue_cones[i].getBox().y - 10),
+            Point(yellow_cones[i].getBox().x + (yellow_cones[i].getBox().width / 2) , yellow_cones[i].getBox().y - 10),
+            Scalar(0,255,0));
     }
 
     imshow("Image" , image);
