@@ -42,7 +42,7 @@ Point get_mid_point(const Point& p1 ,const Point& p2){
 }
 
 int main() {
-    Mat image = imread("../src/img/frame_2.png");
+    Mat image = imread("../src/img/frame_1.png");
     if (image.empty()) {
         std::cerr << "Errore: Impossibile caricare l'immagine!\n";
         return -1;
