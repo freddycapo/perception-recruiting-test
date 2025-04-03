@@ -40,6 +40,13 @@ std::vector<Cone> Detector::detect_cones(Scalar& lower_bound , Scalar& upper_bou
 }
 
 std::vector<Cone> Detector::get_cones(){
+    cv::Scalar lower_orange(114, 0, 145);  // Limite inferiore (HSV)
+    cv::Scalar upper_orange(180, 255, 255); // Limite superiore (HSV)
+    cv::Scalar lower_blue(40 , 70 , 70);
+    cv::Scalar upper_blue(125 , 255 , 255);
+    cv::Scalar lower_yellow(14 , 100 , 184);
+    cv::Scalar upper_yellow(23 , 255 , 255);
+    
     std::vector<Cone> orange_cones = this->detect_cones(lower_orange , upper_orange, 500 , 0.66);
     std::vector<Cone> blue_cones   = this->detect_cones(lower_blue , upper_blue, 30 , 2);
     std::vector<Cone> yellow_cones = this->detect_cones(lower_yellow , upper_yellow, 30 , 2);
@@ -56,7 +63,7 @@ std::vector<Cone> Detector::get_cones(){
 
 }
 
-pair<std::vector<Point> , std::vector<Point>> Detector::extract_track_edges(std::vector<Cone>& cones){
+std::pair<std::vector<Point> , std::vector<Point>> Detector::extract_track_edges(std::vector<Cone>& cones){
     std::vector<Point> Rbound , Lbound;
     for (Cone c : cones){
         if (c.getPos2f().x  > this->img.size().width / 2){
@@ -65,6 +72,9 @@ pair<std::vector<Point> , std::vector<Point>> Detector::extract_track_edges(std:
             Lbound.push_back(c.getPos());
         }
     }
-    return pair<std::vector<Point> , std::vector<Point>>(Lbound, Rbound);
+
+    approxPolyDP(Lbound, Lbound, 20, true);
+    approxPolyDP(Rbound, Rbound, 20, true);
+    return std::pair<std::vector<Point> , std::vector<Point>>(Lbound, Rbound);
 
 }

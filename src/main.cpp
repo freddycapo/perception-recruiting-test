@@ -10,7 +10,6 @@
 
 using namespace cv;
 
-
 Point get_mid_point(const Point& p1 ,const Point& p2){
     return Point((p1.x + p2.x)/2 , (p1.y + p2.y)/2);
 }
@@ -57,33 +56,23 @@ int main() {
     Detector detector2(image2);
 
     std::vector<Cone> coni = detector.get_cones();
+    std::vector<Cone> coni2 = detector2.get_cones();
 
     //ordinare i coni in base all'area (per via della prospettiva)
 
     
-    
-    
-
-    /*polylines(image, Rcones ,false ,  Scalar(0,255,0),3);
-    polylines(image, Lcones ,false ,  Scalar(0,255,0),3);
-    polylines(image, track, false , Scalar(255,0,0) , 3);
-    */
+    std::pair<std::vector<Point> , std::vector<Point>> track = detector.extract_track_edges(coni);
+    std::pair<std::vector<Point> , std::vector<Point>> track2 = detector2.extract_track_edges(coni2);
     
 
-    Mat gray1 = imread("../src/img/frame_1.png" , IMREAD_GRAYSCALE);
-    Mat gray2 = imread("../src/img/frame_2.png" , IMREAD_GRAYSCALE);
-    if (gray1.empty() || gray2.empty()) {
-        std::cerr << "Errore: Impossibile caricare l'immagine!\n";
-        return -1;
-    }
-
-    cv::Mat K = (cv::Mat_<double>(3,3) << 700, 0  , 320,
-                                          0  , 700, 240,
-                                          0  , 0  , 1  );
-    cv::Mat t = calcolaTraslazione(gray1, gray2, K);
-    std::cout << "Vettore di Traslazione:\n" << t << std::endl;
+    polylines(image, track.first ,false ,  Scalar(0,255,0),3);
+    polylines(image, track.second ,false ,  Scalar(0,255,0),3);
     
-    imshow("Image" , image);
+    polylines(image2, track2.first ,false ,  Scalar(0,255,0),3);
+    polylines(image2, track2.second ,false ,  Scalar(0,255,0),3);
+    
+    imshow("Frame_1" , image);
+    imshow("Frame_2" , image2);
     waitKey(0);
     return 0;
 }
