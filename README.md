@@ -7,15 +7,12 @@
 - ✅ Extracting track edges.
 - ✅ Using FAST and ORB algorithm to estimate the movement direction of the camera.
 
+## ⭐ Improvements
 
-## 📸 Screenshot (opzionale)
+- Using data from FAST algorithm to recognize cones.
+- Using fps to calculate the translation in meters.
 
-![Screenshot](link_immagine_o_cartella)
-
-
-## 📦 Installazione
-
-Istruzioni su come installare e usare il progetto:
+## 📦 Download
 
 ```bash
 # Clone repository
@@ -28,5 +25,3 @@ cd perception-recruiting-test
 mkdir build && cd build
 cmake ..
 make && ./Eagle-recruit
-
-# Esegui il programma o installa le dipendenze
