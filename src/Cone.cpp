@@ -1,9 +1,10 @@
 #include "Cone.hpp"
 
-Cone::Cone(cv::Rect box, cv::Scalar lower_color_bound, cv::Scalar upper_color_scalar , cv::Point2f pos)
+Cone::Cone(cv::Rect box , cv::Point2f pos , Color_t color)
 {
     this->box = box;
     this->pos = pos;
+    this->color = color;
 }
 
 Cone::~Cone()

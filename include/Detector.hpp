@@ -8,12 +8,13 @@
 
 using namespace cv;
 
-typedef enum {RED, BLUE, YELLOW} _Color;
-
 class Detector{
     private:
         Mat img;
-        std::vector<Cone> detect_cones(Scalar& lower_bound , Scalar& upper_bound, const float AREA_TRESHOLD , const float WH_RATEO_TRESHOLD);
+        std::vector<Cone> detect_cones(Color_t color, const float AREA_TRESHOLD , const float WH_RATEO_TRESHOLD);
+        const Scalar color_masks[3][2] = {{ Scalar(114, 0, 145) , Scalar(180, 255, 255)},
+                                    { Scalar(40 , 70 , 70) , Scalar(125 , 255 , 255)},
+                                    { Scalar(14 , 100 , 184) , Scalar(23 , 255 , 255)}}; 
         public:
         Detector(Mat& img);
         ~Detector();
