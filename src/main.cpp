@@ -50,8 +50,8 @@ void calcolaTraslazione(const Mat& img1, const Mat& img2, const cv::Mat& K){
     Mat R, t;
     int inliers = recoverPose(E, punti1, punti2, K, R, t);
 
-    std::cout << "Inlier corrispondenze: " << inliers << std::endl;
-    std::cout << "Rotazione R:\n" << R << std::endl;
+    //std::cout << "Inlier corrispondenze: " << inliers << std::endl;
+    //std::cout << "Rotazione R:\n" << R << std::endl;
     std::cout << "Versore Traslazione t (unità relative):\n" << t << std::endl;
 }
 
@@ -63,23 +63,14 @@ int main() {
         return -1;
     }
     
-    Detector detector(image);
-    Detector detector2(image2);
+    Detector detector(image), detector2(image2);
 
     std::vector<Cone> coni = detector.get_cones();
     std::vector<Cone> coni2 = detector2.get_cones();
 
-    //ordinare i coni in base all'area (per via della prospettiva)
-
     std::pair<std::vector<Point2f> , std::vector<Point2f>> track = detector.extract_track_edges(coni);
     std::pair<std::vector<Point2f> , std::vector<Point2f>> track2 = detector2.extract_track_edges(coni2);
     
-    //Disegna linee di spostamento
-    for (int i = 0;i < track.second.size() && i < track2.second.size();++i){
-        line(image , track.second[i] , track2.second[i] , Scalar(0,0,255),3);
-        line(image , track.first[i] , track2.first[i] , Scalar(0,0,255),3);
-    }
-
     cv::Mat K = (cv::Mat_<double>(3,3) <<  //  K = matrice intrinseca della fotocamera (valori stimati ad occhio)
     185.36, 0,     320,
     0,      185.36, 240,

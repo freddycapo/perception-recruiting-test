@@ -51,7 +51,7 @@ std::vector<Cone> Detector::get_cones(){
     for(std::vector<Cone> row : tmp){
         for (Cone c: row){
             ret.push_back(c);
-            rectangle(this->img , c.getBox(),Scalar(255 , 0 ,0) , 3);
+            //rectangle(this->img , c.getBox(),Scalar(255 , 0 ,0) , 3);
         }
     }
 
