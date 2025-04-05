@@ -2,21 +2,17 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
 #include <iostream>
-#include <string>
 #include <vector>
 
 #include "Cone.hpp"
 #include "Detector.hpp"
 
-//https://github.com/siromermer/OpenCV-Projects-cpp-python/blob/master/ObjectTracking-ORB/README.md
-
-// ORB per 2 frame : https://github.com/sunzuolei/orb
-
 using namespace cv;
 
-void calcolaTraslazione(const Mat& img1, const Mat& img2, const cv::Mat& K){
+typedef std::pair<std::vector<Point2f> , std::vector<Point2f>> Traccia_t;
+
+void calcTVersor(const Mat& img1, const Mat& img2, const cv::Mat& K){
     
     Ptr<ORB> orb = ORB::create();
     std::vector<KeyPoint> keypoints1, keypoints2;
@@ -55,7 +51,20 @@ void calcolaTraslazione(const Mat& img1, const Mat& img2, const cv::Mat& K){
     std::cout << "Versore Traslazione t (unità relative):\n" << t << std::endl;
 }
 
+void drawTrack(Mat& img , Traccia_t& track){
+    std::vector<Point> Rpoints , Lpoints;
+    for (Point2f p : track.first){
+        Lpoints.push_back(p);
+    }
+    for (Point2f p : track.second){
+        Rpoints.push_back(p);
+    }
+    polylines(img , Lpoints , false , Scalar(0,255,0) , 3);
+    polylines(img , Rpoints , false , Scalar(0,255,0) , 3);
+}
+
 int main() {
+    //Task 1
     Mat image = imread("../src/img/frame_1.png");
     Mat image2 =  imread("../src/img/frame_2.png");
     if (image.empty() || image2.empty()) {
@@ -64,19 +73,25 @@ int main() {
     }
     
     Detector detector(image), detector2(image2);
-
+    
+    // Task 2 and 3
     std::vector<Cone> coni = detector.get_cones();
     std::vector<Cone> coni2 = detector2.get_cones();
 
-    std::pair<std::vector<Point2f> , std::vector<Point2f>> track = detector.extract_track_edges(coni);
-    std::pair<std::vector<Point2f> , std::vector<Point2f>> track2 = detector2.extract_track_edges(coni2);
+    // Task 4
+    Traccia_t track = detector.extract_track_edges(coni);
+    Traccia_t track2 = detector2.extract_track_edges(coni2);
     
-    cv::Mat K = (cv::Mat_<double>(3,3) <<  //  K = matrice intrinseca della fotocamera (valori stimati ad occhio)
-    185.36, 0,     320,
-    0,      185.36, 240,
-    0,      0,     1);
+    drawTrack(image , track);
+    drawTrack(image2 , track2);
 
-    calcolaTraslazione(image , image2 ,  K);
+    // Task 5
+    cv::Mat K = (cv::Mat_<double>(3,3) <<  //  K = matrice intrinseca della fotocamera (valori stimati ad occhio)
+    185.36, 0,      320,
+    0,      185.36, 240,
+    0,      0,      1   );
+
+    calcTVersor(image , image2 ,  K);
 
     imshow("Frame_1" , image);
     imshow("Frame_2" , image2);

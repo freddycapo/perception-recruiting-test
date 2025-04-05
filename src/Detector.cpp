@@ -76,11 +76,3 @@ std::pair<std::vector<Point2f> , std::vector<Point2f>> Detector::extract_track_e
     return std::pair<std::vector<Point2f> , std::vector<Point2f>>(Lbound, Rbound);
 
 }
-
-std::vector<KeyPoint> Detector::find_keypoints(){
-    std::vector<KeyPoint> punti;
-    Ptr<FeatureDetector> feature_extracter = ORB::create();
-    feature_extracter->detect ( this->img , punti );
-    punti.erase(std::remove_if(punti.begin() , punti.end() , [](KeyPoint p){return p.pt.y < 200 || p.pt.y > 330; }) , punti.end());
-    return punti;
-}

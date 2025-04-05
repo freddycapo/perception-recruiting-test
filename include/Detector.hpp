@@ -21,5 +21,4 @@ class Detector{
 
         std::vector<Cone> get_cones();
         std::pair<std::vector<Point2f> , std::vector<Point2f>> extract_track_edges(std::vector<Cone>& cones);
-        std::vector<KeyPoint> find_keypoints();
 };
