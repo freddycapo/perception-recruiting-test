@@ -16,37 +16,7 @@
 
 using namespace cv;
 
-cv::Mat calcolaTraslazione(const cv::Mat& img1, const cv::Mat& img2, const cv::Mat& K) {
-    // Rileva i keypoints e i descrittori usando SIFT
-    cv::Ptr<cv::SIFT> sift = cv::SIFT::create();
-    std::vector<cv::KeyPoint> keypoints1, keypoints2;
-    Mat descriptors1, descriptors2;
-    sift->detectAndCompute(img1, cv::noArray(), keypoints1, descriptors1);
-    sift->detectAndCompute(img2, cv::noArray(), keypoints2, descriptors2);
-    
-    // Matcher per confrontare i descrittori
-    cv::BFMatcher matcher(cv::NORM_L2, true);
-    std::vector<cv::DMatch> matches;
-    matcher.match(descriptors1, descriptors2, matches);
-    
-    // Estrai i punti corrispondenti
-    std::vector<cv::Point2f> pts1, pts2;
-    for (const auto& match : matches) {
-        pts1.push_back(keypoints1[match.queryIdx].pt);
-        pts2.push_back(keypoints2[match.trainIdx].pt);
-    }
-    
-    // Calcola la Matrice Essenziale
-    cv::Mat E = cv::findEssentialMat(pts1, pts2, K, cv::RANSAC, 0.999, 1.0);
-    
-    // Decomponi la Matrice Essenziale per ottenere Rotazione e Traslazione
-    cv::Mat R, t;
-    cv::recoverPose(E, pts1, pts2, K, R, t);
-    
-    return t; // Restituisce il vettore di traslazione normalizzato
-}
-
-void feature_extraction(Mat& img_1, Mat& img_2, std::vector<KeyPoint>& keypoints_1, std::vector<KeyPoint>& keypoints_2){
+/*void feature_extraction(Mat& img_1, Mat& img_2, std::vector<KeyPoint>& keypoints_1, std::vector<KeyPoint>& keypoints_2){
     //-- inizializzazione
     //std::vector<KeyPoint> keypoints_1, keypoints_2;
     Mat descriptors_1, descriptors_2;
@@ -57,7 +27,7 @@ void feature_extraction(Mat& img_1, Mat& img_2, std::vector<KeyPoint>& keypoints
 
     //KeyPoints Detection using FAST Algorithm
     /*detector->detect ( img_1,keypoints_1 );
-    detector->detect ( img_2,keypoints_2 );*/
+    detector->detect ( img_2,keypoints_2 );
 
     //-- Passaggio 2: calcolare il descrittore BRIEF in base alla posizione dell'angolo
     descriptor->compute ( img_1, keypoints_1, descriptors_1 );
@@ -97,15 +67,57 @@ void feature_extraction(Mat& img_1, Mat& img_2, std::vector<KeyPoint>& keypoints
         }
     }
 
+
+    
     //-- Passaggio 5: traccia i risultati corrispondenti
-    Mat img_match;
+    //Mat img_match;
     Mat img_goodmatch;
-    drawMatches ( img_1, keypoints_1, img_2, keypoints_2, matches, img_match );
+    //drawMatches ( img_1, keypoints_1, img_2, keypoints_2, matches, img_match );
     drawMatches ( img_1, keypoints_1, img_2, keypoints_2, good_matches, img_goodmatch );
-    imshow ( "1", img_match );
+    //imshow ( "1", img_match );
     imshow ( "2", img_goodmatch );
     waitKey(0);
+}*/
 
+void calcolaTraslazione(const Mat& img1,
+    const Mat& img2,
+    const cv::Mat& K){
+    
+    Ptr<ORB> orb = ORB::create();
+    std::vector<KeyPoint> keypoints1, keypoints2;
+    Mat descriptors1, descriptors2;
+    orb->detectAndCompute(img1, noArray(), keypoints1, descriptors1);
+    orb->detectAndCompute(img2, noArray(), keypoints2, descriptors2);
+
+    // Match tra descrittori con BFMatcher
+    BFMatcher matcher(NORM_HAMMING);
+    std::vector<DMatch> matches;
+    matcher.match(descriptors1, descriptors2, matches);
+
+    // Filtra i match migliori (opzionale)
+    std::sort(matches.begin(), matches.end(),
+              [](const DMatch& a, const DMatch& b) {
+                  return a.distance < b.distance;
+              });
+    matches.resize(100); // tieni i migliori 100
+
+    // Estrai punti corrispondenti
+    std::vector<Point2f> punti1, punti2;
+    for (const auto& m : matches) {
+        punti1.push_back(keypoints1[m.queryIdx].pt);
+        punti2.push_back(keypoints2[m.trainIdx].pt);
+    }
+
+    // Calcola matrice essenziale
+    Mat E = findEssentialMat(punti1, punti2, K, RANSAC, 0.999, 1.0);
+
+    // Recupera rotazione e traslazione
+    Mat R, t;
+    int inliers = recoverPose(E, punti1, punti2, K, R, t);
+
+    std::cout << "Inlier corrispondenze: " << inliers << std::endl;
+    std::cout << "Rotazione R:\n" << R << std::endl;
+    std::cout << "Versore Traslazione t (unità relative):\n" << t << std::endl;
 }
 
 int main() {
@@ -127,19 +139,22 @@ int main() {
     std::pair<std::vector<Point2f> , std::vector<Point2f>> track = detector.extract_track_edges(coni);
     std::pair<std::vector<Point2f> , std::vector<Point2f>> track2 = detector2.extract_track_edges(coni2);
     
-    std::vector<KeyPoint> KR1 , KL1 , KR2 , KL2;
-    //polylines(image, track.first ,false ,  Scalar(0,255,0),3);
-    //polylines(image, track.second ,false ,  Scalar(0,255,0),3);
-    
-    //polylines(image2, track2.first ,false ,  Scalar(0,255,0),3);
-    //polylines(image2, track2.second ,false ,  Scalar(0,255,0),3);
+    //Disegna linee di spostamento
+    for (int i = 0;i < track.second.size();++i){
+        if( i < track2.second.size()){
+            line(image , track.second[i] , track2.second[i] , Scalar(0,0,255),3);
+            line(image , track.first[i] , track2.first[i] , Scalar(0,0,255),3);
+        }
+    }
 
-    KeyPoint::convert(track.first , KL1);
-    KeyPoint::convert(track.second , KR1);
-    KeyPoint::convert(track2.first , KL2);
-    KeyPoint::convert(track2.second , KR2);
+    cv::Mat K = (cv::Mat_<double>(3,3) <<
+    185.36, 0,     320,
+    0,      185.36, 240,
+    0,      0,     1);
 
-    feature_extraction(image , image2 , KR1  , KR2);
+    calcolaTraslazione(image , image2 ,  K);
+
+    //std::cout << "W:" << image.size().width << " H: " << image.size().height;
     
     imshow("Frame_1" , image);
     imshow("Frame_2" , image2);
